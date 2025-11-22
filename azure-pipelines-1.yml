@@ -2,23 +2,41 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'shu'   # self-hosted pool của bạn
 
 steps:
+# 1. Install Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '18.x'
   displayName: 'Install Node.js 18'
 
-- script: npm install
+# 2. Install dependencies
+- powershell: |
+    Write-Host "Installing dependencies..."
+    npm install
   displayName: 'Install dependencies'
 
-- script: |
-    if [ -f package.json ]; then
-      npm run build || echo "Không có script build, skip build"
-    fi
+# 3. Build (optional)
+- powershell: |
+    if (Test-Path "package.json") {
+      if ((Get-Content package.json) -match '"build"') {
+        Write-Host "Building project..."
+        npm run build
+      } else {
+        Write-Host "Không có script build, skip build"
+      }
+    } else {
+      Write-Host "Không tìm thấy package.json, skip build"
+    }
   displayName: 'Build project'
 
-- script: |
-    npm test || echo "Không có test, skip test"
+# 4. Test (optional)
+- powershell: |
+    if ((Get-Content package.json) -match '"test"') {
+      Write-Host "Running tests..."
+      npm test
+    } else {
+      Write-Host "Không có test, skip test"
+    }
   displayName: 'Run tests'
