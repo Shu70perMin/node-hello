@@ -3,26 +3,22 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
-  name: 'shu'
+
 steps:
-# 1. Cài Node.js
 - task: NodeTool@0
   inputs:
     versionSpec: '18.x'
   displayName: 'Install Node.js 18'
 
-# 2. Cài dependencies
 - script: npm install
   displayName: 'Install dependencies'
 
-# 3. Build (nếu có)
 - script: |
     if [ -f package.json ]; then
       npm run build || echo "Không có script build, skip build"
     fi
   displayName: 'Build project'
 
-# 4. Chạy test (tuỳ repo)
 - script: |
     npm test || echo "Không có test, skip test"
   displayName: 'Run tests'
